@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, Button, Alert, TouchableOpacity } from 'react-native';
 //import diamondImage from './assets/diamond.png'
 import * as ImagePicker from 'expo-image-picker';
+import * as Sharing from 'expo-sharing';
+
 
 const App = () => {
 
@@ -28,67 +30,88 @@ const App = () => {
 
   }
 
+  const openShareDialog = async () => {
+
+    // 1º compruebo que la plataforma móvil soporta compartir imágenes (podría ser antigua)
+    if (!(await Sharing.isAvailableAsync())) {
+      alert("Sharing is not available in your platform");
+      return;
+    }
+
+    await Sharing.shareAsync(selectedImage.localUri);
+
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title} > Pick an image</Text>
-      <Image
-        //source={{ uri: 'https://picsum.photos/200/200' }}
-        source={{
-          uri: selectedImage !== null
-            ? selectedImage.localUri
-            : 'https://picsum.photos/200/200'
-        }}
-        //source={diamondImage}
-        style={styles.image}
-      />
+      <TouchableOpacity
+        onPress={openImagePickerAsync}
+      >
+        <Image
+          //source={{ uri: 'https://picsum.photos/200/200' }}
+          source={{
+            uri: selectedImage !== null
+              ? selectedImage.localUri
+              : 'https://picsum.photos/200/200'
+          }}
+          //source={diamondImage}
+          style={styles.image}
+        />
+
+      </TouchableOpacity>
 
       {/*       
-      <Button
-        //onPress={onPressLearnMore}
-        //onPress={() => console.log('Hola Raimundo')}
-        onPress={() => Alert.alert('hola tron')}
-        title="Dale caña"
-        color="red"
-        //accessibilityLabel="Learn more about this purple button"
-      /> */
+        <Button
+          //onPress={onPressLearnMore}
+          //onPress={() => console.log('Hola Raimundo')}
+          onPress={() => Alert.alert('hola tron')}
+          title="Dale caña"
+          color="red"
+          //accessibilityLabel="Learn more about this purple button"
+        /> */
       }
 
-      <TouchableOpacity
-        //onPress={() => Alert.alert('hola tron')}
-        onPress={openImagePickerAsync}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Press Here</Text>
-      </TouchableOpacity>
+      {
+        selectedImage ?
+          <TouchableOpacity
+            onPress={openShareDialog}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>Share this image</Text>
+          </TouchableOpacity>
+          : <View/>
+      }
+      
     </View>
   )
 
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+        container: {
+        flex: 1,
     backgroundColor: '#292929',
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 30,
+        fontSize: 30,
     color: '#fff'
   },
   image: {
-    height: 200,
+        height: 200,
     width: 200,
     borderRadius: 100, //-- para que sea redonda, aquí no valen los %
     resizeMode: 'contain'
   },
   button: {
-    backgroundColor: 'blue',
+        backgroundColor: 'blue',
     padding: 7,
     marginTop: 10
   },
   buttonText: {
-    color: '#fff',
+        color: '#fff',
     fontSize: 20
   }
 });
