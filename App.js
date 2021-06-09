@@ -1,9 +1,10 @@
 // import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, Button, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Alert, TouchableOpacity, Platform } from 'react-native';
 //import diamondImage from './assets/diamond.png'
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
+import uploadToAnonymousFilesAsync from 'anonymous-files';
 
 
 const App = () => {
@@ -26,7 +27,16 @@ const App = () => {
       return;
     }
 
-    setSelectedImage({ localUri: pickerResult.uri })
+    if (Platform.OS === 'web') {
+      const remoteUri = await uploadToAnonymousFilesAsync(pickerResult.uri)
+
+      console.log(remoteUri)
+      // forma larga ------ setSelectedImage({localUri: pickerResult.uri, remoteUri: remoteUri})
+      // setSelectedImage({localUri: pickerResult.uri, remoteUri})
+    }
+    else {
+      setSelectedImage({ localUri: pickerResult.uri })
+    }
 
   }
 
@@ -34,7 +44,7 @@ const App = () => {
 
     // 1º compruebo que la plataforma móvil soporta compartir imágenes (podría ser antigua)
     if (!(await Sharing.isAvailableAsync())) {
-      alert("Sharing is not available in your platform");
+      alert(`The image is available for sharing at: ${selectedImage.remoteUri}`);
       return;
     }
 
@@ -82,7 +92,7 @@ const App = () => {
           </TouchableOpacity>
           : <View/>
       }
-      
+
     </View>
   )
 
